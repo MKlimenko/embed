@@ -79,7 +79,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <PreBuildEvent>
-      <Command>"%EMBED%\embed" ..\..\..\example -o ..\..\..\src\test</Command>
+      <Command>"%EMBED%\embed" ..\..\..\benchmark\test -o ..\..\..\src\test</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -91,7 +91,7 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <PreBuildEvent>
-      <Command>"%EMBED%\embed" ..\..\..\example -o ..\..\..\src\test</Command>
+      <Command>"%EMBED%\embed" ..\..\..\benchmark\test -o ..\..\..\src\test</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -109,7 +109,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PreBuildEvent>
-      <Command>"%EMBED%\embed" ..\..\..\example -o ..\..\..\src\test</Command>
+      <Command>"%EMBED%\embed" ..\..\..\benchmark\test -o ..\..\..\src\test</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -127,7 +127,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PreBuildEvent>
-      <Command>"%EMBED%\embed" ..\..\..\example -o ..\..\..\src\test</Command>
+      <Command>"%EMBED%\embed" ..\..\..\benchmark\test -o ..\..\..\src\test</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
