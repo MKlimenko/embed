@@ -20,7 +20,7 @@ One of the key concerns is the performance. I've benchmarked two corner cases:
 1. One big file
 2. Multiple small files
 
-As a starting point I've measured the complete rebuild process on my PC (MSVC 15.9.2, i5-750, 12GB of RAM) and it took 3992 ms.
+As a starting point, I've measured the complete rebuild process on my PC (MSVC 15.9.2, i5-750, 12GB of RAM) and it took 3992 ms.
 
 ### Total rebuild times
 

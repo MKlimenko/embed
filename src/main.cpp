@@ -22,9 +22,9 @@ namespace {
 	}
 
 	auto ParseCommandLine(tcb::span<char*> arguments) {
-		auto dst = std::pair(std::string_view(), std::vector<std::string_view>());
+		auto dst = std::pair(std::string(), std::vector<std::string>());
 		auto find_output_flag = [](auto& val) {
-			return std::string_view(val) == "-o";
+			return std::string(val) == "-o";
 		};
 
 		auto output_location = std::find_if(arguments.begin(), arguments.end(), find_output_flag);

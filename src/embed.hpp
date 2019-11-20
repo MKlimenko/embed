@@ -4,7 +4,7 @@
 
 #include <fstream>
 
-namespace fs = std::filesystem;
+namespace fs = std::experimental::filesystem;
 
 class Embed {
 private:
@@ -26,11 +26,11 @@ private:
 public:
 	Embed() :Embed(".") {}
 	Embed(fs::path call_folder) : 
-		saver(std::filesystem::is_regular_file(call_folder) ? call_folder.parent_path() : call_folder) 
+		saver(fs::is_regular_file(call_folder) ? call_folder.parent_path() : call_folder) 
 	{}
 
-	void SaveAll(tcb::span<std::string_view> entries) {
-		for(auto&entry:entries)
+	void SaveAll(tcb::span<std::string> entries) {
+		for (auto&entry : entries)
 			Save(entry);
 	}
 };

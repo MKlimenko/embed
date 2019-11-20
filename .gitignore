@@ -28,6 +28,6 @@ obj/
 _ReSharper*/
 [Tt]est[Rr]esult*
 *.*db
-resource_*.hpp
-/src/test/resource.hpp
-/src/test/span.hpp
+*.ipch
+/src/test/embedded_resources/**
+*.db*

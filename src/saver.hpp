@@ -6,7 +6,7 @@
 #include <fstream>
 #include <iostream>
 
-namespace fs = std::filesystem;
+namespace fs = std::experimental::filesystem;
 
 class Saver {
 private:
@@ -22,26 +22,30 @@ private:
 	constexpr static std::array resource_holder_begin_text{
 		"class ResourceHolder {",
 		"private:",
-		"\tconst inline static std::array resources {",
 	};
 	constexpr static std::array resource_holder_text {
-		"\t};",
 		"",
 		"public:",
-		"\t[[nodiscard]]",
-		"\tstatic auto Gather(std::string_view file) {",
+		"\tauto Gather(const std::string& file) const {",
 		"\t\tauto it = std::find_if(resources.begin(), resources.end(), [file](const auto& lhs) {",
 		"\t\t\treturn lhs.GetPath() == file;",
 		"\t\t});",
 		"\t\tif (it == resources.end())",
-		"\t\t\tthrow std::runtime_error(\"Unable to detect resource with name \" + std::string(file));",
+		"\t\t\tthrow std::runtime_error(\"Unable to detect resource with name \" + file);",
 		"\t\t",
 		"\t\treturn it->GetArray();",
 		"\t}",
 		"",
-		"\t[[nodiscard]]",
-		"\tstatic auto ListFiles() {",
-		"\t\tstd::vector<std::string_view> dst{};",
+		"\tauto Gather(fs::path file) const {",
+		"\t\treturn Gather(file.string());",
+		"\t}",
+		"",
+		"\tauto Gather(const char* file) const {",
+		"\t\treturn Gather(std::string(file));",
+		"\t}",
+		"",
+		"\tauto ListFiles() const {",
+		"\t\tstd::vector<std::string> dst{};",
 		"\t\tdst.reserve(resources.size());",
 		"\t\tfor (auto&el : resources)",
 		"\t\t\tdst.push_back(el.GetPath());",
@@ -49,36 +53,56 @@ private:
 		"\t\treturn dst;",
 		"\t}",
 		"",
-		"\t[[nodiscard]]",
-		"\tstatic auto FindByFilename(std::string_view file) {",
+		"\tauto FindByFilename(const std::string& file) const {",
 		"\t\tstd::vector<Resource> dst{};",
 		"\t\tdst.reserve(resources.size());",
-		"\t\tauto sought_file = std::filesystem::path(file).filename();",
-		"\t\tstd::copy_if(resources.begin(), resources.end(), std::back_inserter(dst), [sought_file](const auto &item) {",
-		"\t\t\treturn sought_file == std::filesystem::path(item.GetPath()).filename();",
+		"\t\tauto sought_file = fs::path(file).filename();",
+		"\t\tstd::copy_if(resources.begin(), resources.end(), std::back_inserter(dst), [sought_file](const auto& item) {",
+		"\t\t\treturn sought_file == fs::path(item.GetPath()).filename();",
 		"\t\t});",
 		"\t\t",
 		"\t\treturn dst;",
 		"\t}",
 		"",
-		"\tauto operator()(std::string_view file) {",
+		"\tauto FindByFilename(fs::path file) const {",
+		"\t\treturn FindByFilename(file.string());",
+		"\t}",
+		"",
+		"\tauto FindByFilename(const char* file) const {",
+		"\t\treturn FindByFilename(std::string(file));",
+		"\t}",
+		"",
+		"\tauto operator()(const std::string& file) const {",
 		"\t\treturn Gather(file);",
+		"\t}",
+		"",
+		"\tauto operator()(fs::path file) const {",
+		"\t\treturn Gather(file);",
+		"\t}",
+		"",
+		"\tauto operator()(const char* file) const {",
+		"\t\treturn Gather(std::string(file));",
 		"\t}",
 		"};",
 		"",
-		"namespace rh {",
-		"\tResourceHolder embed;",
-		"}",
 	};
-	constexpr static std::array resource_text {
+	constexpr static std::array resource_text{
 		"#pragma once",
 		"",
+		"#include <algorithm>",
 		"#include <array>",
 		"#include <cstdint>",
-		"#include <filesystem>",
 		"#include <functional>",
 		"#include \"span.hpp\"",
 		"#include <tuple>",
+		"",
+		"#if __cplusplus < 201703L",
+		"#include <experimental/filesystem>",
+		"namespace fs = std::experimental::filesystem;",
+		"#else",
+		"#include <filesystem>",
+		"namespace fs = std::filesystem;",
+		"#endif",
 		"",
 		"class Resource {",
 		"public:",
@@ -88,18 +112,18 @@ private:
 		"",
 		"private:",
 		"\tconst EmbeddedData arr_view;",
-		"\tconst std::string_view path;",
+		"\tconst std::string path;",
 		"",
 		"public:",
 		"\tResource() = default;",
 		"\ttemplate <typename Container>",
-		"\tResource(const Container& arr_, std::string_view path_) : arr_view(arr_), path(path_) {}",
+		"\tResource(const Container& arr_, std::string path_) : arr_view(arr_), path(std::move(path_)) {}",
 		"",
 		"\tauto GetArray() const {",
 		"\t\treturn arr_view;",
 		"\t}",
 		"",
-		"\tauto GetPath() const {",
+		"\tauto& GetPath() const {",
 		"\t\treturn path;",
 		"\t}",
 		"};",
@@ -878,14 +902,14 @@ private:
 		"#endif // TCB_SPAN_HPP_INCLUDED",
 	};
 
-	auto Format(int val) {
+	auto Format(int val) const {
 		static std::array<char, 5> str;
 		auto [p, ec] = std::to_chars(str.data(), str.data() + str.size(), val);
 		*p++ = ',';
-		return std::string_view(str.data(), p - str.data());
+		return std::string(str.data(), p - str.data());
 	}
 
-	auto FromFilename(std::string_view filename) {
+	auto FromFilename(const std::string& filename) {
 		return fs::path(root).append(filename).string();
 	}
 
@@ -911,21 +935,20 @@ public:
 	~Saver() {
 		resource_holder_hpp << "#pragma once" << std::endl << std::endl;
 		resource_holder_hpp << "#include \"resource.hpp\"" << std::endl;
-		
-		for(auto&el:filenames)
-			resource_holder_hpp << "#include \"" <<subfolder_name << "\\\\" << el << ".hpp\"" << std::endl;
+
+		for (auto&el : filenames)
+			resource_holder_hpp << "#include \"" << subfolder_name << "/" << el << ".hpp\"" << std::endl;
 
 		resource_holder_hpp << std::endl;
 
 		for (auto&el : resource_holder_begin_text)
 			resource_holder_hpp << el << std::endl;
 
-		if (filenames.empty())
-			resource_holder_hpp << "\t\tResource()" << std::endl;
-
+		resource_holder_hpp << "\tstd::array<Resource, " << filenames.size() << "> resources {" << std::endl;
 		for (auto&el : filenames)
 			resource_holder_hpp << "\t\tResource(" << el << ",\t" << el << "_path)," << std::endl;
-		
+		resource_holder_hpp << "\t};" << std::endl;
+
 		for (auto&el : resource_holder_text)
 			resource_holder_hpp << el << std::endl;
 
@@ -936,7 +959,7 @@ public:
 			span_hpp << el << std::endl;
 	}
 
-	void Save(Resource res) {
+	void Save(const Resource& res) {
 		Save(res.GetArray(), res.GetPath());
 	}
 
@@ -954,7 +977,7 @@ public:
 				throw std::runtime_error("Unable to open file " + resource_path.string());
 
 			out << "#pragma once" << std::endl << std::endl;
-			out << R"(#include "..\resource_holder.hpp")" << std::endl << std::endl;
+			out << R"(#include "../resource_holder.hpp")" << std::endl << std::endl;
 			out << "namespace { " << std::endl;
 			out << "\tconst std::array<std::uint8_t, " << data.size() << "> " << array_filename << " {" << std::endl;
 			out << "\t\t";
