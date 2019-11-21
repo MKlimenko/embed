@@ -4,6 +4,7 @@
 #include "embedded_resources/resource_12073696463075507820.hpp"
 #include "embedded_resources/resource_12244619635858790702.hpp"
 
+namespace {
 class ResourceHolder {
 private:
 	std::array<Resource, 2> resources {
@@ -70,4 +71,4 @@ public:
 		return Gather(std::string(file));
 	}
 };
-
+}

@@ -20,6 +20,7 @@ private:
 	const std::string subfolder_name = "embedded_resources";
 
 	constexpr static std::array resource_holder_begin_text{
+		"namespace {",
 		"class ResourceHolder {",
 		"private:",
 	};
@@ -84,7 +85,7 @@ private:
 		"\t\treturn Gather(std::string(file));",
 		"\t}",
 		"};",
-		"",
+		"}",
 	};
 	constexpr static std::array resource_text{
 		"#pragma once",
