@@ -23,10 +23,6 @@ public:
 		return it->GetArray();
 	}
 
-	auto Gather(fs::path file) const {
-		return Gather(file.string());
-	}
-
 	auto Gather(const char* file) const {
 		return Gather(std::string(file));
 	}
@@ -43,16 +39,19 @@ public:
 	auto FindByFilename(const std::string& file) const {
 		std::vector<Resource> dst{};
 		dst.reserve(resources.size());
-		auto sought_file = fs::path(file).filename();
-		std::copy_if(resources.begin(), resources.end(), std::back_inserter(dst), [sought_file](const auto& item) {
-			return sought_file == fs::path(item.GetPath()).filename();
+		std::copy_if(resources.begin(), resources.end(), std::back_inserter(dst), [file](const auto& item) {
+			auto path = item.GetPath();
+			auto last_forward = path.find_last_of('\\');
+			auto last_inverse = path.find_last_of('/');
+			
+			if (last_forward != std::string::npos)
+				path = path.substr(last_forward + 1);
+			else if (last_inverse != std::string::npos)
+				path = path.substr(last_inverse + 1);
+			return path == file;
 		});
 		
 		return dst;
-	}
-
-	auto FindByFilename(fs::path file) const {
-		return FindByFilename(file.string());
 	}
 
 	auto FindByFilename(const char* file) const {
@@ -60,10 +59,6 @@ public:
 	}
 
 	auto operator()(const std::string& file) const {
-		return Gather(file);
-	}
-
-	auto operator()(fs::path file) const {
 		return Gather(file);
 	}
 

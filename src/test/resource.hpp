@@ -6,14 +6,7 @@
 #include <functional>
 #include "span.hpp"
 #include <tuple>
-
-#if __cplusplus < 201703L
-#include <experimental/filesystem>
-namespace fs = std::experimental::filesystem;
-#else
-#include <filesystem>
-namespace fs = std::filesystem;
-#endif
+#include <vector>
 
 class Resource {
 public:

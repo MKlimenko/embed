@@ -5,8 +5,8 @@ namespace rh {
 }
 
 int main() {
-	auto data = rh::embed(fs::path(R"(..\..\..\example\nmea.txt)"));
-	auto data_path = rh::embed(fs::path(R"(../../../example/nmea.txt)"));
-	
+	auto data = rh::embed(R"(..\..\..\example\nmea.txt)");
+	auto find = rh::embed.FindByFilename("nmea.txt");
+
 	return 0;
 }

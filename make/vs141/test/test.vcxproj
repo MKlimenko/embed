@@ -177,7 +177,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PreBuildEvent>
-      <Command>"%EMBED%\embed" ..\..\..\example -o ..\..\..\src\test</Command>
+      <Command>"..\x64\Release\embed" ..\..\..\example -o ..\..\..\src\test</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
