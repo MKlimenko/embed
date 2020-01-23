@@ -2,11 +2,14 @@
 
 #include "resource.hpp"
 
+#include <algorithm>
 #include <charconv>
 #include <fstream>
 #include <iostream>
+#include <string>
+#include <sstream>
 
-namespace fs = std::experimental::filesystem;
+namespace fs = std::filesystem;
 
 class Saver {
 private:
@@ -902,6 +905,14 @@ private:
 		return fs::path(root).append(filename).string();
 	}
 
+	bool IsSame(const std::stringstream& data, fs::path resource_path) const {
+		std::ifstream test_file(resource_path);
+		if (!test_file)
+			return false;
+
+		return std::string(std::istreambuf_iterator<char>(test_file), std::istreambuf_iterator<char>()) == data.str();
+	}
+
 public:
 	Saver(fs::path root_path) :
 		root(root_path), 
@@ -921,31 +932,39 @@ public:
 			fs::create_directory(subfolder);
 	}
 
-	~Saver() {
-		resource_holder_hpp << "#pragma once" << std::endl << std::endl;
-		resource_holder_hpp << "#include \"resource.hpp\"" << std::endl;
+	~Saver() noexcept {
+		try {
+			resource_holder_hpp << "#pragma once" << std::endl << std::endl;
+			resource_holder_hpp << "#include \"resource.hpp\"" << std::endl;
 
-		for (auto&el : filenames)
-			resource_holder_hpp << "#include \"" << subfolder_name << "/" << el << ".hpp\"" << std::endl;
+			for (auto&el : filenames)
+				resource_holder_hpp << "#include \"" << subfolder_name << "/" << el << ".hpp\"" << std::endl;
 
-		resource_holder_hpp << std::endl;
+			resource_holder_hpp << std::endl;
 
-		for (auto&el : resource_holder_begin_text)
-			resource_holder_hpp << el << std::endl;
+			for (auto&el : resource_holder_begin_text)
+				resource_holder_hpp << el << std::endl;
 
-		resource_holder_hpp << "\tstd::array<Resource, " << filenames.size() << "> resources {" << std::endl;
-		for (auto&el : filenames)
-			resource_holder_hpp << "\t\tResource(" << el << ",\t" << el << "_path)," << std::endl;
-		resource_holder_hpp << "\t};" << std::endl;
+			resource_holder_hpp << "\tstd::array<Resource, " << filenames.size() << "> resources {" << std::endl;
+			for (auto&el : filenames)
+				resource_holder_hpp << "\t\tResource(" << el << ",\t" << el << "_path)," << std::endl;
+			resource_holder_hpp << "\t};" << std::endl;
 
-		for (auto&el : resource_holder_text)
-			resource_holder_hpp << el << std::endl;
+			for (auto&el : resource_holder_text)
+				resource_holder_hpp << el << std::endl;
 
-		for (auto&el : resource_text)
-			resource_hpp << el << std::endl;
+			for (auto&el : resource_text)
+				resource_hpp << el << std::endl;
 
-		for (auto&el : span_text)
-			span_hpp << el << std::endl;
+			for (auto&el : span_text)
+				span_hpp << el << std::endl;
+		}
+		catch (std::exception& e) {
+			std::cerr << e.what() << std::endl;
+		}
+		catch (...) {
+			std::cerr << "Unknown exception has occured" << std::endl;
+		}
 	}
 
 	void Save(const Resource& res) {
@@ -955,16 +974,14 @@ public:
 	void Save(Resource::EmbeddedData data, fs::path resource_path) {
 		try {
 			if (verbose)
-				std::cout << "embed.exe: saving " << resource_path.string() << std::endl;
+				std::cout << "embed.exe: saving " << resource_path.string();
 
 			auto array_filename = "resource_" + std::to_string(fs::hash_value(resource_path));
 			filenames.push_back(array_filename);
 			auto header_filename = array_filename + ".hpp";
 			auto header_path = fs::path(root).append(header_filename);
-			std::ofstream out(header_path.c_str());
-			if (!out.is_open())
-				throw std::runtime_error("Unable to open file " + resource_path.string());
 
+			std::stringstream out;
 			out << "#pragma once" << std::endl << std::endl;
 			out << R"(#include "../resource_holder.hpp")" << std::endl << std::endl;
 			out << "namespace { " << std::endl;
@@ -975,6 +992,19 @@ public:
 
 			out << std::endl << "\t};" << std::endl;
 			out << "\tconst auto " << array_filename << "_path = R\"(" << resource_path.string() << ")\";" << std::endl << "}" << std::endl;
+
+			if (IsSame(out, header_path)) {
+				if (verbose)
+					std::cout << " ... Skipped" << std::endl;
+				return;
+			}
+			std::ofstream out_file(header_path.c_str());
+			if (!out_file.is_open())
+				throw std::runtime_error("Unable to open file " + header_path.string());
+
+			out_file << out.rdbuf();
+			if (verbose)
+				std::cout << std::endl;
 		}
 		catch (...) {
 			resource_holder_hpp << "static_assert(false, R\"(Error while embedding " << resource_path.string() << " file)\");" << std::endl;

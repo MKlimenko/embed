@@ -4,7 +4,7 @@
 
 #include <fstream>
 
-namespace fs = std::experimental::filesystem;
+namespace fs = std::filesystem;
 
 class Embed {
 private:
@@ -24,8 +24,8 @@ private:
 	}
 
 public:
-	Embed() :Embed(".") {}
-	Embed(fs::path call_folder) : 
+	Embed() noexcept : Embed(".") {}
+	Embed(fs::path call_folder) noexcept :
 		saver(fs::is_regular_file(call_folder) ? call_folder.parent_path() : call_folder) 
 	{}
 

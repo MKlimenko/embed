@@ -44,7 +44,7 @@ namespace {
 			dst.second.insert(dst.second.end(), output_location + 2, arguments.end());
 			dst.first = *(output_location + 1);
 		}
-		catch (std::exception &e) {
+		catch (const std::exception &e) {
 			std::cout << e.what() << std::endl << std::endl;
 			std::cout << "Given: embed.exe ";
 			for (auto&el : arguments)
@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
 
 		e.SaveAll(entries);
 	}
-	catch (std::exception &e) {
+	catch (const std::exception &e) {
 		std::cerr << e.what() << std::endl;
 	}
 	return 0;
