@@ -92,6 +92,7 @@ private:
 		"#include <array>",
 		"#include <cstdint>",
 		"#include <functional>",
+		"#include <iterator>",
 		"#include \"span.hpp\"",
 		"#include <tuple>",
 		"#include <vector>",
