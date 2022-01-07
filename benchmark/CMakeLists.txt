@@ -12,14 +12,6 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 	target_compile_options(${PROJECT_NAME} PUBLIC -ftime-trace)
 endif()
 
-add_compile_definitions(BENCHMARK_DATA_FULL_PATH="${CMAKE_CURRENT_LIST_DIR}/../benchmark_data/data.txt")
-file (REMOVE_RECURSE 
-						${CMAKE_CURRENT_LIST_DIR}/../benchmark_data/*
-                        ${CMAKE_CURRENT_LIST_DIR}/embedded_resources/ 
-                        ${CMAKE_CURRENT_LIST_DIR}/resource.hpp
-                        ${CMAKE_CURRENT_LIST_DIR}/resource_holder.hpp
-                        ${CMAKE_CURRENT_LIST_DIR}/span.hpp
-)
 add_custom_target(embed_benchmark_pre_build
     COMMAND $<TARGET_FILE:embed> 
                                     ${CMAKE_CURRENT_LIST_DIR}/../benchmark_data/

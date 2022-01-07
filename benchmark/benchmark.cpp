@@ -5,7 +5,6 @@ namespace rh {
 }
 
 int main() {
-	auto data = rh::embed(BENCHMARK_DATA_FULL_PATH);
-	
+	//auto data = rh::embed(BENCHMARK_DATA_FULL_PATH);
 	return 0;
 }
