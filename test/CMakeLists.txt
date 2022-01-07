@@ -49,13 +49,16 @@ endif()
 
 add_compile_definitions(NMEA_FULL_PATH="${CMAKE_CURRENT_LIST_DIR}/../example/nmea.txt")
 file (REMOVE_RECURSE 
-                        ${CMAKE_CURRENT_LIST_DIR}/embedded_resources/ 
+                        ${CMAKE_CURRENT_LIST_DIR}/embedded_resources/
                         ${CMAKE_CURRENT_LIST_DIR}/resource.hpp
                         ${CMAKE_CURRENT_LIST_DIR}/resource_holder.hpp
                         ${CMAKE_CURRENT_LIST_DIR}/span.hpp
 )
 add_custom_target(embed_test_pre_build
-    COMMAND $<TARGET_FILE:embed> ${CMAKE_CURRENT_LIST_DIR}/../example/nmea.txt ${CMAKE_CURRENT_LIST_DIR}/../example/text.txt -o ${CMAKE_CURRENT_LIST_DIR}
+    COMMAND $<TARGET_FILE:embed> 
+                                    ${CMAKE_CURRENT_LIST_DIR}/../example/nmea.txt 
+                                    ${CMAKE_CURRENT_LIST_DIR}/../example/text.txt 
+                                    -o ${CMAKE_CURRENT_LIST_DIR}
 )
 add_dependencies(embed_test_pre_build embed)
 add_dependencies(embed_test embed_test_pre_build)
