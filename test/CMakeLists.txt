@@ -49,7 +49,7 @@ endif()
 
 add_compile_definitions(NMEA_FULL_PATH="${CMAKE_CURRENT_LIST_DIR}/../example/nmea.txt")
 add_custom_target(embed_test_pre_build
-    COMMAND ${EmbedLocation} ${CMAKE_CURRENT_LIST_DIR}/../example/nmea.txt ${CMAKE_CURRENT_LIST_DIR}/../example/text.txt -o ${CMAKE_CURRENT_LIST_DIR}
+    COMMAND $<TARGET_FILE:embed> ${CMAKE_CURRENT_LIST_DIR}/../example/nmea.txt ${CMAKE_CURRENT_LIST_DIR}/../example/text.txt -o ${CMAKE_CURRENT_LIST_DIR}
 )
 add_dependencies(embed_test_pre_build embed)
 add_dependencies(embed_test embed_test_pre_build)

@@ -32,3 +32,4 @@ _ReSharper*/
 /src/test/embedded_resources/**
 *.db*
 /.vs/*
+/out/*
