@@ -15,6 +15,8 @@ private:
 			for (auto&el : fs::recursive_directory_iterator(entry))
 				Save(el);
 		else {
+			if (!fs::exists(entry))
+				throw std::runtime_error("No such file:" + entry.string());
 			std::ifstream inf(entry.string(), std::ios::binary);
 			std::vector<std::uint8_t> data(fs::file_size(entry));
 

@@ -18,7 +18,7 @@ private:
 	std::ofstream resource_holder_hpp;
 	std::ofstream resource_hpp;
 	std::ofstream span_hpp;
-	bool verbose = true;
+	bool verbose = false;
 
 	const std::string subfolder_name = "embedded_resources";
 
@@ -92,6 +92,7 @@ private:
 		"#include <array>",
 		"#include <cstdint>",
 		"#include <functional>",
+		"#include <iterator>",
 		"#include \"span.hpp\"",
 		"#include <tuple>",
 		"#include <vector>",
