@@ -33,3 +33,4 @@ _ReSharper*/
 *.db*
 /.vs/*
 /out/*
+/build/*
