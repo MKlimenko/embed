@@ -4,6 +4,9 @@ project(embed_benchmark)
 
 add_executable (${PROJECT_NAME} 
 							benchmark.cpp
+                            resource.hpp
+                            resource_holder.hpp
+                            span.hpp
 )
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
@@ -16,6 +19,7 @@ add_custom_target(embed_benchmark_pre_build
     COMMAND $<TARGET_FILE:embed> 
                                     ${CMAKE_CURRENT_LIST_DIR}/../benchmark_data/
                                     -o ${CMAKE_CURRENT_LIST_DIR}
+    BYPRODUCTS resource.hpp resource_holder.hpp span.hpp
 )
 add_dependencies(embed_benchmark_pre_build embed)
 add_dependencies(embed_benchmark embed_benchmark_pre_build)

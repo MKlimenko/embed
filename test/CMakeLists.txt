@@ -36,6 +36,9 @@ project(embed_test)
 
 add_executable (${PROJECT_NAME} 
 							test.cpp
+                            resource.hpp
+                            resource_holder.hpp
+                            span.hpp
 )
 target_link_libraries(${PROJECT_NAME} gtest_main)
 enable_testing()
@@ -59,6 +62,7 @@ add_custom_target(embed_test_pre_build
                                     ${CMAKE_CURRENT_LIST_DIR}/../example/nmea.txt 
                                     ${CMAKE_CURRENT_LIST_DIR}/../example/text.txt 
                                     -o ${CMAKE_CURRENT_LIST_DIR}
+    BYPRODUCTS resource.hpp resource_holder.hpp span.hpp
 )
 add_dependencies(embed_test_pre_build embed)
 add_dependencies(embed_test embed_test_pre_build)

@@ -18,7 +18,7 @@ private:
 	std::ofstream resource_holder_hpp;
 	std::ofstream resource_hpp;
 	std::ofstream span_hpp;
-	bool verbose = false;
+	bool verbose = true;
 
 	const std::string subfolder_name = "embedded_resources";
 
