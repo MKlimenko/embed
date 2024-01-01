@@ -59,6 +59,7 @@ file (REMOVE_RECURSE
 )
 add_custom_target(embed_test_pre_build
     COMMAND $<TARGET_FILE:embed> 
+                                    ${CMAKE_CURRENT_LIST_DIR}/../example/nmea.txt
                                     ${CMAKE_CURRENT_LIST_DIR}/../example
                                     -o ${CMAKE_CURRENT_LIST_DIR}
     BYPRODUCTS resource.hpp resource_holder.hpp span.hpp

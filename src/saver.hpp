@@ -975,11 +975,11 @@ public:
 
 	void Save(Resource::EmbeddedData data, fs::path resource_path) {
 		try {
-			auto absolute_path = fs::canonical(resource_path);
+			auto corrected_path = resource_path.make_preferred();
 			if (verbose)
-				std::cout << "embed.exe: saving " << absolute_path.string();
+				std::cout << "embed.exe: saving " << resource_path.string();
 
-			auto array_filename = "resource_" + std::to_string(fs::hash_value(absolute_path));
+			auto array_filename = "resource_" + std::to_string(fs::hash_value(resource_path));
 			filenames.push_back(array_filename);
 			auto header_filename = array_filename + ".hpp";
 			auto header_path = fs::path(root).append(header_filename);
@@ -994,7 +994,7 @@ public:
 				out << Format(el);
 
 			out << std::endl << "\t};" << std::endl;
-			out << "\tconst auto " << array_filename << "_path = R\"(" << absolute_path.string() << ")\";" << std::endl << "}" << std::endl;
+			out << "\tconst auto " << array_filename << "_path = R\"(" << resource_path.string() << ")\";" << std::endl << "}" << std::endl;
 
 			if (IsSame(out, header_path)) {
 				if (verbose)
