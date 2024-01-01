@@ -8,6 +8,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <vector>
 
 namespace fs = std::filesystem;
 
@@ -27,7 +28,7 @@ private:
 		"class ResourceHolder {",
 		"private:",
 	};
-	constexpr static std::array resource_holder_text {
+	constexpr static std::array resource_holder_text{
 		"",
 		"public:",
 		"\tauto Gather(const std::string& file) const {",
@@ -916,7 +917,7 @@ private:
 
 public:
 	Saver(fs::path root_path) :
-		root(root_path), 
+		root(root_path),
 		resource_holder_hpp(FromFilename("resource_holder.hpp")),
 		resource_hpp(FromFilename("resource.hpp")),
 		span_hpp(FromFilename("span.hpp")) {
@@ -927,7 +928,7 @@ public:
 			throw std::runtime_error("Unable to create resource header");
 		if (!span_hpp.is_open())
 			throw std::runtime_error("Unable to create span header");
-		
+
 		auto subfolder = root.append(subfolder_name);
 		if (!fs::exists(subfolder))
 			fs::create_directory(subfolder);
@@ -938,26 +939,26 @@ public:
 			resource_holder_hpp << "#pragma once" << std::endl << std::endl;
 			resource_holder_hpp << "#include \"resource.hpp\"" << std::endl;
 
-			for (auto&el : filenames)
+			for (auto& el : filenames)
 				resource_holder_hpp << "#include \"" << subfolder_name << "/" << el << ".hpp\"" << std::endl;
 
 			resource_holder_hpp << std::endl;
 
-			for (auto&el : resource_holder_begin_text)
+			for (auto& el : resource_holder_begin_text)
 				resource_holder_hpp << el << std::endl;
 
 			resource_holder_hpp << "\tstd::array<Resource, " << filenames.size() << "> resources {" << std::endl;
-			for (auto&el : filenames)
+			for (auto& el : filenames)
 				resource_holder_hpp << "\t\tResource(" << el << ",\t" << el << "_path)," << std::endl;
 			resource_holder_hpp << "\t};" << std::endl;
 
-			for (auto&el : resource_holder_text)
+			for (auto& el : resource_holder_text)
 				resource_holder_hpp << el << std::endl;
 
-			for (auto&el : resource_text)
+			for (auto& el : resource_text)
 				resource_hpp << el << std::endl;
 
-			for (auto&el : span_text)
+			for (auto& el : span_text)
 				span_hpp << el << std::endl;
 		}
 		catch (std::exception& e) {
@@ -974,10 +975,11 @@ public:
 
 	void Save(Resource::EmbeddedData data, fs::path resource_path) {
 		try {
+			auto absolute_path = fs::canonical(resource_path);
 			if (verbose)
-				std::cout << "embed.exe: saving " << resource_path.string();
+				std::cout << "embed.exe: saving " << absolute_path.string();
 
-			auto array_filename = "resource_" + std::to_string(fs::hash_value(resource_path));
+			auto array_filename = "resource_" + std::to_string(fs::hash_value(absolute_path));
 			filenames.push_back(array_filename);
 			auto header_filename = array_filename + ".hpp";
 			auto header_path = fs::path(root).append(header_filename);
@@ -988,11 +990,11 @@ public:
 			out << "namespace { " << std::endl;
 			out << "\tconst std::array<std::uint8_t, " << data.size() << "> " << array_filename << " {" << std::endl;
 			out << "\t\t";
-			for (auto&el : data)
+			for (auto& el : data)
 				out << Format(el);
 
 			out << std::endl << "\t};" << std::endl;
-			out << "\tconst auto " << array_filename << "_path = R\"(" << resource_path.string() << ")\";" << std::endl << "}" << std::endl;
+			out << "\tconst auto " << array_filename << "_path = R\"(" << absolute_path.string() << ")\";" << std::endl << "}" << std::endl;
 
 			if (IsSame(out, header_path)) {
 				if (verbose)

@@ -17,7 +17,7 @@ namespace {
 	};
 
 	auto PrintUsage() {
-		for (auto&el : usage)
+		for (auto& el : usage)
 			std::cout << el << std::endl;
 	}
 
@@ -25,7 +25,7 @@ namespace {
 		auto dst = std::pair(std::string(), std::vector<std::string>());
 		auto find_output_flag = [](auto& val) {
 			return std::string(val) == "-o";
-		};
+			};
 
 		auto output_location = std::find_if(arguments.begin(), arguments.end(), find_output_flag);
 
@@ -44,10 +44,10 @@ namespace {
 			dst.second.insert(dst.second.end(), output_location + 2, arguments.end());
 			dst.first = *(output_location + 1);
 		}
-		catch (const std::exception &e) {
+		catch (const std::exception& e) {
 			std::cout << e.what() << std::endl << std::endl;
 			std::cout << "Given: embed.exe ";
-			for (auto&el : arguments)
+			for (auto& el : arguments)
 				std::cout << el << " ";
 			std::cout << std::endl << std::endl;
 			PrintUsage();
@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
 
 		e.SaveAll(entries);
 	}
-	catch (const std::exception &e) {
+	catch (const std::exception& e) {
 		std::cerr << e.what() << std::endl;
 	}
 	return 0;

@@ -10,10 +10,13 @@ class Embed {
 private:
 	Saver saver;
 
-	void Save(fs::path entry) {
-		if (fs::is_directory(entry))
-			for (auto&el : fs::recursive_directory_iterator(entry))
-				Save(el);
+	void Save(fs::path entry, bool root_is_directory = false) {
+		if (fs::is_directory(entry)) {
+			if (root_is_directory)
+				return;
+			for (auto& el : fs::recursive_directory_iterator(entry))
+				Save(el, true);
+		}
 		else {
 			if (!fs::exists(entry))
 				throw std::runtime_error("No such file:" + entry.string());
@@ -28,11 +31,11 @@ private:
 public:
 	Embed() noexcept : Embed(".") {}
 	Embed(fs::path call_folder) noexcept :
-		saver(fs::is_regular_file(call_folder) ? call_folder.parent_path() : call_folder) 
+		saver(fs::is_regular_file(call_folder) ? call_folder.parent_path() : call_folder)
 	{}
 
 	void SaveAll(tcb::span<std::string> entries) {
-		for (auto&entry : entries)
+		for (auto& entry : entries)
 			Save(entry);
 	}
 };
