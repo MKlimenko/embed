@@ -41,7 +41,7 @@ TEST(embed_test, test_full_path) {
 
 TEST(embed_test, test_find) {
 	auto data_vec = rh::embed.FindByFilename("nmea.txt");
-	ASSERT_EQ(data_vec.size(), 2);
+	ASSERT_EQ(data_vec.size(), 1);
 	auto data = data_vec[0].GetArray();
 	auto vec = ReadFile(rh::GetNmeaPath());
 	ASSERT_EQ(data.size(), vec.size());
@@ -50,7 +50,7 @@ TEST(embed_test, test_find) {
 }
 
 TEST(embed_test, test_subfolders) {
-	ASSERT_EQ(rh::embed.ListFiles().size(), 4);
+	ASSERT_EQ(rh::embed.ListFiles().size(), 3);
 	auto data_vec = rh::embed.FindByFilename("subdir_file.txt");
 	ASSERT_EQ(data_vec.size(), 1);
 }

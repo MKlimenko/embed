@@ -32,7 +32,7 @@ private:
 		"",
 		"public:",
 		"\tauto Gather(const std::string& file) const {",
-		"\t\tauto it = std::find_if(resources.begin(), resources.end(), [file](const auto& lhs) {",
+		"\t\tauto it = std::find_if(resources.begin(), resources.end(), [&file](const auto& lhs) {",
 		"\t\t\treturn lhs.GetPath() == file;",
 		"\t\t});",
 		"\t\tif (it == resources.end())",
@@ -57,7 +57,7 @@ private:
 		"\tauto FindByFilename(const std::string& file) const {",
 		"\t\tstd::vector<Resource> dst{};",
 		"\t\tdst.reserve(resources.size());",
-		"\t\tstd::copy_if(resources.begin(), resources.end(), std::back_inserter(dst), [file](const auto& item) {",
+		"\t\tstd::copy_if(resources.begin(), resources.end(), std::back_inserter(dst), [&file](const auto& item) {",
 		"\t\t\tauto path = item.GetPath();",
 		"\t\t\tauto last_forward = path.find_last_of('\\\\');",
 		"\t\t\tauto last_inverse = path.find_last_of('/');",
@@ -975,11 +975,18 @@ public:
 
 	void Save(Resource::EmbeddedData data, fs::path resource_path) {
 		try {
+			[[maybe_unused]]
 			auto corrected_path = resource_path.make_preferred();
 			if (verbose)
 				std::cout << "embed.exe: saving " << resource_path.string();
 
 			auto array_filename = "resource_" + std::to_string(fs::hash_value(resource_path));
+			if (std::find(filenames.begin(), filenames.end(), array_filename) != filenames.end()) {
+				if (verbose)
+					std::cout << " ... Skipped as a duplicate" << std::endl;
+				return;
+			}
+
 			filenames.push_back(array_filename);
 			auto header_filename = array_filename + ".hpp";
 			auto header_path = fs::path(root).append(header_filename);

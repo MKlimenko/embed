@@ -34,3 +34,6 @@ _ReSharper*/
 /.vs/*
 /out/*
 /build/*
+
+/test/span.hpp
+resource*.hpp
