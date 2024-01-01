@@ -51,6 +51,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 endif()
 
 add_compile_definitions(NMEA_FULL_PATH="${CMAKE_CURRENT_LIST_DIR}/../example/nmea.txt")
+add_compile_definitions(EMBED_EXE_PATH="$<TARGET_FILE:embed>")
 file (REMOVE_RECURSE 
                         ${CMAKE_CURRENT_LIST_DIR}/embedded_resources/
                         ${CMAKE_CURRENT_LIST_DIR}/resource.hpp

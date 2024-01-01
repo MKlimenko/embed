@@ -54,3 +54,46 @@ TEST(embed_test, test_subfolders) {
 	auto data_vec = rh::embed.FindByFilename("subdir_file.txt");
 	ASSERT_EQ(data_vec.size(), 1);
 }
+
+struct PerformanceTestFixture : testing::TestWithParam<std::size_t> {
+	static auto GetInputFolder() {
+		static auto subfolder = "input_for_" + std::to_string(GetParam());
+		static auto test_data_path = std::filesystem::current_path() / subfolder;
+		return test_data_path;
+	}
+	static auto GetOutputFolder() {
+		static auto subfolder = "output_for_" + std::to_string(GetParam());
+		static auto test_data_path = std::filesystem::current_path() / subfolder;
+		return test_data_path;
+	}
+
+	static inline auto file_size = 1024;
+
+	virtual void SetUp() override {
+		std::filesystem::create_directory(GetInputFolder());
+		for (std::size_t i = 0; i < GetParam(); ++i) {
+			std::ofstream out(GetInputFolder() / std::to_string(i), std::ios::binary);
+			out.seekp(file_size - 1);
+			out.write("", 1);
+		}
+		std::filesystem::create_directory(GetOutputFolder());
+	}
+	virtual void TearDown() override {
+		std::filesystem::remove_all(GetInputFolder());
+		std::filesystem::remove_all(GetOutputFolder());
+	}
+};
+
+TEST_P(PerformanceTestFixture, performance_test) {
+	auto input = GetInputFolder();
+	auto output = GetInputFolder();
+	auto command = std::string(EMBED_EXE_PATH) + ' ' + input.string() + " -o " + output.string();
+	auto result = system(command.c_str());
+	ASSERT_EQ(result, 0);
+}
+
+INSTANTIATE_TEST_SUITE_P(
+	PerformanceTest,
+	PerformanceTestFixture,
+	testing::Values(1, 8, 64, 512, 1024)
+);
