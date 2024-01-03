@@ -87,7 +87,7 @@ struct PerformanceTestFixture : testing::TestWithParam<std::size_t> {
 TEST_P(PerformanceTestFixture, performance_test) {
 	auto input = GetInputFolder();
 	auto output = GetInputFolder();
-	auto command = std::string(EMBED_EXE_PATH) + ' ' + input.string() + " -o " + output.string();
+	auto command = std::string(EMBED_EXE_PATH) + ' ' + input.string() + " -o " + output.string() + " > nul";
 	auto result = system(command.c_str());
 	ASSERT_EQ(result, 0);
 }
