@@ -13,9 +13,6 @@ jobs:
     - uses: actions/checkout@v3
       with:
         submodules: recursive
-        
-    - name: Install build-essential
-      run: sudo apt-get install -y build-essential
 
     - name: Set up clang
       uses: egor-tensin/setup-clang@v1
@@ -41,7 +38,7 @@ jobs:
       run: ./vcpkg/vcpkg install gtest benchmark
 
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=/home/runner/work/ugsdr/ugsdr/vcpkg/scripts/buildsystems/vcpkg.cmake
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=/home/runner/work/embed/embed/vcpkg/scripts/buildsystems/vcpkg.cmake
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
