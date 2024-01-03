@@ -57,13 +57,13 @@ TEST(embed_test, test_subfolders) {
 
 struct PerformanceTestFixture : testing::TestWithParam<std::size_t> {
 	static auto GetInputFolder() {
-		static auto subfolder = "input_for_" + std::to_string(GetParam());
-		static auto test_data_path = std::filesystem::current_path() / subfolder;
+		auto subfolder = "input_for_" + std::to_string(GetParam());
+		auto test_data_path = std::filesystem::current_path() / subfolder;
 		return test_data_path;
 	}
 	static auto GetOutputFolder() {
-		static auto subfolder = "output_for_" + std::to_string(GetParam());
-		static auto test_data_path = std::filesystem::current_path() / subfolder;
+		auto subfolder = "output_for_" + std::to_string(GetParam());
+		auto test_data_path = std::filesystem::current_path() / subfolder;
 		return test_data_path;
 	}
 
