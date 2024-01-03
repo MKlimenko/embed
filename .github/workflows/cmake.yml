@@ -1,0 +1,43 @@
+name: CMake
+
+on: push
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+
+    - uses: actions/cache@v3
+      id: vcpkg-cache
+      with:
+        path: vcpkg
+        key: ${{ runner.os }}-vcpkg
+
+    - name: Get vcpkg
+      if: steps.vcpkg-cache.outputs.cache-hit != 'true'
+      run: git clone https://github.com/microsoft/vcpkg.git --depth 1
+
+    - name: Bootstrap vcpkg
+      if: steps.vcpkg-cache.outputs.cache-hit != 'true'
+      run: ./vcpkg/bootstrap-vcpkg.sh
+
+    - name: Install dependencies
+      if: steps.vcpkg-cache.outputs.cache-hit != 'true'
+      run: ./vcpkg/vcpkg install gtest benchmark
+
+    - name: Configure CMake
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=/home/runner/work/embed/embed/vcpkg/scripts/buildsystems/vcpkg.cmake
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      run: ctest -C ${{env.BUILD_TYPE}} -V

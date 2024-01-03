@@ -57,13 +57,13 @@ TEST(embed_test, test_subfolders) {
 
 struct PerformanceTestFixture : testing::TestWithParam<std::size_t> {
 	static auto GetInputFolder() {
-		static auto subfolder = "input_for_" + std::to_string(GetParam());
-		static auto test_data_path = std::filesystem::current_path() / subfolder;
+		auto subfolder = "input_for_" + std::to_string(GetParam());
+		auto test_data_path = std::filesystem::current_path() / subfolder;
 		return test_data_path;
 	}
 	static auto GetOutputFolder() {
-		static auto subfolder = "output_for_" + std::to_string(GetParam());
-		static auto test_data_path = std::filesystem::current_path() / subfolder;
+		auto subfolder = "output_for_" + std::to_string(GetParam());
+		auto test_data_path = std::filesystem::current_path() / subfolder;
 		return test_data_path;
 	}
 
@@ -87,7 +87,7 @@ struct PerformanceTestFixture : testing::TestWithParam<std::size_t> {
 TEST_P(PerformanceTestFixture, performance_test) {
 	auto input = GetInputFolder();
 	auto output = GetInputFolder();
-	auto command = std::string(EMBED_EXE_PATH) + ' ' + input.string() + " -o " + output.string();
+	auto command = std::string(EMBED_EXE_PATH) + ' ' + input.string() + " -o " + output.string() + " > nul";
 	auto result = system(command.c_str());
 	ASSERT_EQ(result, 0);
 }
