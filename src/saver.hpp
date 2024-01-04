@@ -6,6 +6,7 @@
 #include <charconv>
 #include <fstream>
 #include <iostream>
+#include <mutex>
 #include <string>
 #include <sstream>
 #include <vector>
@@ -19,6 +20,7 @@ private:
 	std::ofstream resource_holder_hpp;
 	std::ofstream resource_hpp;
 	std::ofstream span_hpp;
+	std::mutex m;
 	bool verbose = true;
 
 	const std::string subfolder_name = "embedded_resources";
@@ -897,7 +899,7 @@ private:
 	};
 
 	auto Format(int val) const {
-		static std::array<char, 5> str;
+		std::array<char, 5> str;
 		auto [p, ec] = std::to_chars(str.data(), str.data() + str.size(), val);
 		*p++ = ',';
 		return std::string(str.data(), p - str.data());
@@ -915,6 +917,25 @@ private:
 		return std::string(std::istreambuf_iterator<char>(test_file), std::istreambuf_iterator<char>()) == data.str();
 	}
 
+	struct AsyncPrinter final {
+		std::stringstream ss;
+
+		~AsyncPrinter() {
+			std::cout << ss.str();
+		}
+
+		template <typename T>
+		friend AsyncPrinter& operator<<(AsyncPrinter& printer, const T& value) {
+			printer.ss << value;
+			return printer;
+		}
+
+		friend AsyncPrinter& operator<<(AsyncPrinter& printer, std::ostream& (*f)(std::ostream&)) {
+			f(printer.ss);
+			return printer;
+		}
+	};
+	
 public:
 	Saver(fs::path root_path) :
 		root(root_path),
@@ -975,19 +996,22 @@ public:
 
 	void Save(Resource::EmbeddedData data, fs::path resource_path) {
 		try {
+			AsyncPrinter console_output;
 			[[maybe_unused]]
 			auto corrected_path = resource_path.make_preferred();
 			if (verbose)
-				std::cout << "embed.exe: saving " << resource_path.string();
+				console_output << "embed.exe: saving " << resource_path.string();
 
 			auto array_filename = "resource_" + std::to_string(fs::hash_value(resource_path));
-			if (std::find(filenames.begin(), filenames.end(), array_filename) != filenames.end()) {
-				if (verbose)
-					std::cout << " ... Skipped as a duplicate" << std::endl;
-				return;
+			{
+				if (std::find(filenames.begin(), filenames.end(), array_filename) != filenames.end()) {
+					if (verbose)
+						console_output << " ... Skipped as a duplicate" << std::endl;
+					return;
+				}
+				auto lock = std::scoped_lock(m);
+				filenames.push_back(array_filename);
 			}
-
-			filenames.push_back(array_filename);
 			auto header_filename = array_filename + ".hpp";
 			auto header_path = fs::path(root).append(header_filename);
 
@@ -1005,7 +1029,7 @@ public:
 
 			if (IsSame(out, header_path)) {
 				if (verbose)
-					std::cout << " ... Skipped" << std::endl;
+					console_output << " ... Skipped" << std::endl;
 				return;
 			}
 			std::ofstream out_file(header_path.c_str());
@@ -1014,7 +1038,7 @@ public:
 
 			out_file << out.rdbuf();
 			if (verbose)
-				std::cout << std::endl;
+				console_output << std::endl;
 		}
 		catch (...) {
 			resource_holder_hpp << "static_assert(false, R\"(Error while embedding " << resource_path.string() << " file)\");" << std::endl;

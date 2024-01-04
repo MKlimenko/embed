@@ -95,5 +95,5 @@ TEST_P(PerformanceTestFixture, performance_test) {
 INSTANTIATE_TEST_SUITE_P(
 	PerformanceTest,
 	PerformanceTestFixture,
-	testing::Values(1, 8, 64, 512, 1024)
+	testing::Values(1, 8, 64, 512, 1024, 8192)
 );
