@@ -2,6 +2,8 @@
 
 #include "saver.hpp"
 
+#include <algorithm>
+#include <execution>
 #include <fstream>
 
 namespace fs = std::filesystem;
@@ -14,8 +16,12 @@ private:
 		if (fs::is_directory(entry)) {
 			if (root_is_directory)
 				return;
+			std::vector<fs::path> files;
 			for (auto& el : fs::recursive_directory_iterator(entry))
-				Save(el, true);
+				if (!el.is_directory())
+					files.push_back(el.path());
+			std::for_each(std::execution::par_unseq, files.begin(), files.end(),
+				[this](auto& el) {Save(el, true); });
 		}
 		else {
 			if (!fs::exists(entry))
@@ -35,7 +41,8 @@ public:
 	{}
 
 	void SaveAll(tcb::span<std::string> entries) {
-		for (auto& entry : entries)
-			Save(entry);
+		std::for_each(std::execution::par_unseq, entries.begin(), entries.end(),
+			[this](auto& entry) { Save(entry); }
+		);
 	}
 };
